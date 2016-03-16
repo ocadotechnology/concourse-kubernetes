@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: concourse-worker
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: concourse-worker
+    spec:
+      containers:
+      - name: concourse-worker
+        image: vyshane/concourse-worker
+        env:
+        - name: TSA_HOST
+          value: $(CONCOURSE_WEB_SERVICE_HOST)
+        - name: TSA_PUBLIC_KEY
+          value: /etc/secrets/concourse/tsa-host-public-key
+        - name: TSA_WORKER_PRIVATE_KEY
+          value: /etc/secrets/concourse/worker-private-key
+        volumeMounts:
+        - name: concourse-secrets
+          mountPath: /etc/secrets/concourse
+          readOnly: true
+        - name: work-directory
+          mountPath: /opt/concourse/worker
+      volumes:
+      - name: concourse-secrets
+        secret:
+          secretName: concourse-secrets
+      - name: work-directory
+        emptyDir: {}  # You will probably want persistent storage in production
