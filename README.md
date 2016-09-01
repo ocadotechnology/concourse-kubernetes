@@ -52,11 +52,7 @@ I've created the following Docker images for use in this project:
   * [vyshane/concourse-base](https://github.com/vyshane/concourse-base-docker) [[Docker Hub link](https://hub.docker.com/r/vyshane/concourse-base/)]
   * [vyshane/concourse-web](https://github.com/vyshane/concourse-web-docker) [[Docker Hub link](https://hub.docker.com/r/vyshane/concourse-web/)]
   * [vyshane/concourse-worker](https://github.com/vyshane/concourse-worker-docker) [[Docker Hub link](https://hub.docker.com/r/vyshane/concourse-worker/)]
-  * [vyshane/postgresql](https://github.com/vyshane/postgresql-docker) [[Docker Hub link](https://hub.docker.com/r/vyshane/postgresql/)]
 
 The `vyshane/concourse-base` image packages the Concourse binary distribution.
 
 The `vyshane/concourse-web` and `vyshane/concourse-worker` images implement the web and worker roles respectively.
-
-The `vyshane/postgresql` image extends the [official PostgreSQL image](https://hub.docker.com/_/postgres/) to make it easier to configure the database server using Kubernetes secrets.
-
