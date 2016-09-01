@@ -11,36 +11,45 @@ spec:
     spec:
       containers:
       - name: concourse-web
-        image: vyshane/concourse-web
+        args:
+        - web
+        - --postgres-data-source=postgres://$(POSTGRES_USERNAME):$(POSTGRES_PASSWORD)@concourse-postgresql:5432/concourse?sslmode=disable
+        image: concourse/concourse
         env:
-        - name: BASIC_AUTH_USERNAME_FILE
-          value: /etc/secrets/concourse/basic-auth-username
-        - name: BASIC_AUTH_PASSWORD_FILE
-          value: /etc/secrets/concourse/basic-auth-password
-        - name: SESSION_SIGNING_KEY
+        - name: CONCOURSE_BASIC_AUTH_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: concourse-secrets
+              key: basic-auth-username
+        - name: CONCOURSE_BASIC_AUTH_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: concourse-secrets
+              key: basic-auth-password
+        - name: CONCOURSE_SESSION_SIGNING_KEY
           value: /etc/secrets/concourse/session-signing-key
-        - name: TSA_HOST_KEY
+        - name: CONCOURSE_TSA_HOST_KEY
           value: /etc/secrets/concourse/tsa-host-private-key
-        - name: TSA_AUTHORIZED_KEYS
+        - name: CONCOURSE_TSA_AUTHORIZED_KEYS
           value: /etc/secrets/concourse/tsa-authorized-keys
-        - name: POSTGRES_HOST
-          value: $(CONCOURSE_POSTGRESQL_SERVICE_HOST)
-        - name: POSTGRES_PORT
-          value: $(CONCOURSE_POSTGRESQL_SERVICE_PORT)
-        - name: POSTGRES_USERNAME_FILE
-          value: /etc/secrets/postgresql/username
-        - name: POSTGRES_PASSWORD_FILE
-          value: /etc/secrets/postgresql/password
-        - name: POSTGRES_USE_SSL
-          value: "NO"
+        - name: POSTGRES_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: concourse-postgresql-secrets
+              key: username
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: concourse-postgresql-secrets
+              key: password
         - name: EXTERNAL_URL
-          value: http://$(CONCOURSE_WEB_SERVICE_HOST):$(CONCOURSE_WEB_SERVICE_PORT)
+          value: http://concourse-web:8080
         - name: MY_IP
           valueFrom:
             fieldRef:
               fieldPath: status.podIP
         - name: PEER_URL
-          value: http://$(MY_IP):$(CONCOURSE_WEB_SERVICE_PORT)
+          value: http://$(MY_IP):8080
         ports:
         - containerPort: 8080
           name: atc
@@ -50,13 +59,7 @@ spec:
         - name: concourse-secrets
           mountPath: /etc/secrets/concourse
           readOnly: true
-        - name: postgresql-secrets
-          mountPath: /etc/secrets/postgresql
-          readOnly: true
       volumes:
       - name: concourse-secrets
         secret:
           secretName: concourse-secrets
-      - name: postgresql-secrets
-        secret:
-          secretName: concourse-postgresql-secrets
