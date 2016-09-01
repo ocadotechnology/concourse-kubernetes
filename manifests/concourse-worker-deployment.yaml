@@ -11,14 +11,18 @@ spec:
     spec:
       containers:
       - name: concourse-worker
-        image: vyshane/concourse-worker
+        args:
+        - worker
+        image: concourse/concourse
         env:
-        - name: TSA_HOST
-          value: $(CONCOURSE_WEB_SERVICE_HOST)
-        - name: TSA_PUBLIC_KEY
+        - name: CONCOURSE_TSA_HOST
+          value: concourse-web
+        - name: CONCOURSE_TSA_PUBLIC_KEY
           value: /etc/secrets/concourse/tsa-host-public-key
-        - name: TSA_WORKER_PRIVATE_KEY
+        - name: CONCOURSE_TSA_WORKER_PRIVATE_KEY
           value: /etc/secrets/concourse/worker-private-key
+        securityContext:
+          privileged: true
         volumeMounts:
         - name: concourse-secrets
           mountPath: /etc/secrets/concourse
